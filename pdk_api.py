@@ -1,4 +1,4 @@
-# pylint: disable=line-too-long, no-member
+# pylint: disable=line-too-long
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
@@ -10,11 +10,9 @@ import arrow
 import requests
 
 from django.conf import settings
-from django.contrib.gis.geos import GEOSGeometry, Polygon
-from django.utils import timezone
-from django.utils.text import slugify
+from django.contrib.gis.geos import Polygon
 
-from passive_data_kit_external_sensors.models import SensorRegion, Sensor, SensorLocation, SensorDataPayload, SensorModel
+from passive_data_kit_external_sensors.models import SensorRegion
 
 AIRBEAM_SENSOR_TYPES = (
     'AirBeam3-PM2.5',
@@ -27,7 +25,7 @@ AIRBEAM_SENSOR_TYPES = (
     'OpenAQ-PM2.5',
 )
 
-def fetch_sensors():
+def fetch_sensors(): # pylint: disable=too-many-locals
     sensors = []
 
     if hasattr(settings, 'PDK_EXTERNAL_SENSORS_AIRBEAM_URL'): # pylint: disable=too-many-nested-blocks
@@ -40,7 +38,7 @@ def fetch_sensors():
                 valid_region = valid_region.union(region.bounds)
 
         start = int(arrow.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).timestamp)
-        end =  int(arrow.utcnow().shift(days=1).shift(seconds=-1).timestamp)
+        end = int(arrow.utcnow().shift(days=1).shift(seconds=-1).timestamp)
 
         # Chicago: 41.8781 N, 87.6298
 
@@ -59,7 +57,7 @@ def fetch_sensors():
             longitude = west
 
             while longitude < east:
-                cell_poly  = Polygon((
+                cell_poly = Polygon((
                     (longitude, latitude),
                     (longitude, latitude + cell_size),
                     (longitude + cell_size, latitude + cell_size),
@@ -105,19 +103,22 @@ def fetch_sensors():
 
     return sensors
 
-def ingest_sensor_data(sensor_data):
+def ingest_sensor_data(sensor_data): # pylint: disable=unused-argument
     pass
+
 #    if 'pdk_identifier' in sensor_data:
 #        identifier = sensor_data['pdk_identifier']
 #
-#        if identifier.startswith('purpleair-') and ('pdk_observed' in sensor_data) and ('Lat' in sensor_data) and ('Lon' in sensor_data):
+#        if identifier.startswith('purpleair-') and ('pdk_observed' in sensor_data) and \
+#           ('Lat' in sensor_data) and ('Lon' in sensor_data):
 #            model = None
 #
 #            if 'Type' in sensor_data:
 #                model = SensorModel.objects.filter(identifier=slugify(sensor_data['Type'])).first()
 #
 #                if model is None:
-#                    model = SensorModel(identifier=slugify(sensor_data['Type']), name=sensor_data['Type'])
+#                    model = SensorModel(identifier=slugify(sensor_data['Type']), \
+#                            name=sensor_data['Type'])
 #                    model.manufacturer = 'Unknown (via Purple Air)'
 #                    model.save()
 #
@@ -145,12 +146,14 @@ def ingest_sensor_data(sensor_data):
 #
 #            del sensor_data['pdk_observed']
 #
-#            sensor_location = GEOSGeometry('POINT(%f %f)' % (sensor_data['Lon'], sensor_data['Lat'],))
+#            sensor_location = GEOSGeometry('POINT(%f %f)' % (sensor_data['Lon'], \
+#                              sensor_data['Lat'],))
 #
 #            last_location = sensor.locations.all().order_by('-last_observed').first()
 #
 #            if last_location is None or last_location.location.distance(sensor_location) > 0.00001:
-#                last_location = SensorLocation.objects.create(sensor=sensor, first_observed=now, last_observed=now, location=sensor_location)
+#                last_location = SensorLocation.objects.create(sensor=sensor, first_observed=now, \
+#                                last_observed=now, location=sensor_location)
 #            else:
 #                if last_location.last_observed != payload_when:
 #                    last_location.last_observed = payload_when
@@ -159,7 +162,8 @@ def ingest_sensor_data(sensor_data):
 #            last_payload = sensor.data_payloads.filter(observed__gte=payload_when).first()
 #
 #            if last_payload is None:
-#                data_payload = SensorDataPayload(sensor=sensor, observed=payload_when, location=last_location)
+#                data_payload = SensorDataPayload(sensor=sensor, observed=payload_when, \
+#                               location=last_location)
 #                data_payload.definition = sensor_data
 #                data_payload.save()
 #
