@@ -83,7 +83,7 @@ def fetch_sensors(): # pylint: disable=too-many-locals
                             'north': latitude + cell_size,
                         }
 
-                        response = requests.get(settings.PDK_EXTERNAL_SENSORS_AIRBEAM_URL + '/api/fixed/active/sessions.json', params={'q': json.dumps(params, ensure_ascii=False)})
+                        response = requests.get(settings.PDK_EXTERNAL_SENSORS_AIRBEAM_URL + '/api/fixed/active/sessions.json', params={'q': json.dumps(params, ensure_ascii=False)}, timeout=300)
 
                         if response.status_code == 200:
                             response_payload = response.json()
